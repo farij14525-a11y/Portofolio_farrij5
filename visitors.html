@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Telemetri Pengunjung | Zero-G Control Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #080b11;
+            --card-bg: rgba(16, 22, 36, 0.75);
+            --border-glow: rgba(0, 240, 255, 0.2);
+            --cyan: #00f0ff;
+            --purple: #9d4edd;
+            --green: #10b981;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            padding: 30px 20px;
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 60%);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        .title-group h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .title-group p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+        .btn-refresh {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-refresh:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 18px;
+            backdrop-filter: blur(10px);
+        }
+        .stat-card span {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-card strong {
+            display: block;
+            font-size: 1.8rem;
+            margin-top: 5px;
+            color: var(--cyan);
+        }
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        th {
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        tr:hover td {
+            background: rgba(0, 240, 255, 0.03);
+        }
+        .ip-badge {
+            font-family: 'Fira Code', monospace;
+            background: rgba(0, 240, 255, 0.08);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            padding: 3px 8px;
+            border-radius: 5px;
+            color: var(--cyan);
+            font-size: 0.88rem;
+        }
+        .loc-badge {
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .maps-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--green);
+            color: var(--green);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .maps-btn:hover {
+            background: var(--green);
+            color: #000;
+        }
+        .time-tag {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+        .ua-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="title-group">
+                <h1><i class="fa-solid fa-satellite-dish" style="color: var(--cyan);"></i> Radar Telemetri Pengunjung</h1>
+                <p>Log pelacakan real-time siapa pun yang membuka portofolio</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-refresh" onclick="loadLogs()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                <a href="index.html" class="btn-refresh"><i class="fa-solid fa-arrow-left"></i> Portofolio</a>
+            </div>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <span>Total Kunjungan Terlacak</span>
+                <strong id="statTotal">0</strong>
+            </div>
+            <div class="stat-card">
+                <span>Pengunjung Unik (IP)</span>
+                <strong id="statUnique">0</strong>
+            </div>
+            <div class="stat-card">
+                <span>Kota Terakhir</span>
+                <strong id="statLastCity" style="font-size:1.3rem;">-</strong>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Waktu (WIB)</th>
+                        <th>IP Address</th>
+                        <th>Lokasi Terdeteksi</th>
+                        <th>Titik Koordinat</th>
+                        <th>Spesifikasi Device Lengkap</th>
+                        <th>ISP / Jaringan</th>
+                        <th>Peta Lokasi</th>
+                    </tr>
+                </thead>
+                <tbody id="logTableBody">
+                    <tr><td colspan="7" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data pelacakan...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function loadLogs() {
+            const tbody = document.getElementById('logTableBody');
+            try {
+                const res = await fetch('visitors_log.json?t=' + Date.now());
+                if (!res.ok) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Belum ada pengunjung yang terlacak, atau file log belum dibuat. Buka halaman utama portofolio untuk merekam kunjungan pertama!</td></tr>';
+                    return;
+                }
+                const logs = await res.json();
+                if (!Array.isArray(logs) || logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Belum ada kunjungan yang tercatat.</td></tr>';
+                    return;
+                }
+
+                // Stats
+                document.getElementById('statTotal').textContent = logs.length;
+                const uniqueIps = new Set(logs.map(l => l.ip)).size;
+                document.getElementById('statUnique').textContent = uniqueIps;
+                document.getElementById('statLastCity').textContent = logs[0].city || logs[0].location || '-';
+
+                // Rows
+                tbody.innerHTML = logs.map(item => {
+                    const coordsDisplay = item.coords || (item.latitude && item.longitude ? `${item.latitude}, ${item.longitude}` : '-');
+                    const devModel = item.device_model || item.device_type || 'Perangkat Terdeteksi';
+                    const devOs = item.os || 'OS Unknown';
+                    const devBrowser = item.browser || '';
+                    const devCpu = item.cpu ? `🧠 ${item.cpu}` : '';
+                    const devRam = item.ram ? `💾 ${item.ram}` : '';
+                    const devGpu = item.gpu && item.gpu !== 'N/A' && item.gpu !== 'Tidak Diketahui' ? `🎮 ${item.gpu}` : '';
+                    const devBattery = item.battery && item.battery !== 'N/A' ? `🔋 ${item.battery}` : '';
+                    const devScreen = item.screen && item.screen !== '-' ? `🖥️ ${item.screen}` : '';
+
+                    return `
+                    <tr>
+                        <td class="time-tag">${item.timestamp || '-'}</td>
+                        <td><span class="ip-badge">${item.ip || 'Unknown'}</span></td>
+                        <td>
+                            <div class="loc-badge">
+                                <i class="fa-solid fa-location-dot" style="color:${item.is_gps ? '#10b981' : '#00f0ff'};"></i>
+                                <span>${item.location || '-'}</span>
+                                ${item.is_gps 
+                                    ? `<span style="background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.4); font-size:0.72rem; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:600;"><i class="fa-solid fa-satellite"></i> GPS ${item.accuracy || 'AKURAT'}</span>` 
+                                    : `<span style="background:rgba(148,163,184,0.12); color:#94a3b8; font-size:0.7rem; padding:2px 5px; border-radius:4px; margin-left:6px;">IP Network</span>`}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-family:'Fira Code',monospace; font-size:0.83rem; color:${item.is_gps ? '#10b981' : '#00f0ff'}; background:rgba(0,0,0,0.4); padding:4px 8px; border-radius:6px; border:1px dashed ${item.is_gps ? 'rgba(16,185,129,0.4)' : 'rgba(0,240,255,0.25)'}; display:inline-block;">
+                                <i class="fa-solid fa-crosshairs" style="margin-right:4px;"></i>${coordsDisplay}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-size:0.85rem; line-height:1.45;">
+                                <div style="font-weight:700; color:#fff; display:flex; align-items:center; gap:6px;">
+                                    <i class="fa-solid fa-${devModel.toLowerCase().includes('phone') ? 'mobile-screen-button' : 'laptop'}" style="color:#00f0ff;"></i>
+                                    <span>${devModel}</span>
+                                    <span style="background:rgba(255,255,255,0.08); padding:1px 6px; border-radius:4px; font-size:0.75rem; color:#94a3b8;">${devOs}</span>
+                                </div>
+                                ${devBrowser ? `<div style="color:#94a3b8; font-size:0.78rem;">🌐 ${devBrowser}</div>` : ''}
+                                <div style="color:#cbd5e1; font-size:0.76rem; margin-top:3px; display:flex; flex-wrap:wrap; gap:8px;">
+                                    ${devCpu ? `<span>${devCpu}</span>` : ''}
+                                    ${devRam ? `<span>${devRam}</span>` : ''}
+                                    ${devBattery ? `<span>${devBattery}</span>` : ''}
+                                </div>
+                                ${devGpu ? `<div style="color:#64748b; font-size:0.73rem; margin-top:2px; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.gpu}">${devGpu}</div>` : ''}
+                                ${devScreen ? `<div style="color:#64748b; font-size:0.73rem;">${devScreen}</div>` : ''}
+                            </div>
+                        </td>
+                        <td style="color:#cbd5e1; font-size:0.88rem;">
+                            <div>${item.isp || '-'}</div>
+                            ${item.network && item.network !== 'N/A' ? `<div style="color:#94a3b8; font-size:0.75rem;">📶 ${item.network}</div>` : ''}
+                        </td>
+                        <td>
+                            ${item.maps_link && item.maps_link !== '-' 
+                                ? `<a href="${item.maps_link}" target="_blank" class="maps-btn" style="${item.is_gps ? 'background:rgba(16,185,129,0.25); font-weight:700;' : ''}"><i class="fa-solid fa-map-location-dot"></i> ${item.is_gps ? 'Peta GPS Eksak' : 'Peta Perkiraan'}</a>` 
+                                : '<span style="color:#64748b; font-size:0.8rem;">Tidak ada koordinat</span>'}
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state" style="color:#ef4444;"><i class="fa-solid fa-circle-exclamation"></i> Gagal memuat log. Pastikan server lokal Apache/PHP Laragon sedang aktif!</td></tr>';
+            }
+        }
+
+        loadLogs();
+        // Auto refresh tiap 10 detik
+        setInterval(loadLogs, 10000);
+    </script>
+</body>
+</html>
